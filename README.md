@@ -5,7 +5,7 @@
 - Fabrício Silva (21070035)
 - Jairo Silva (21070006)
 - João Fonseca ()
-- Ricardo Vigliano ()
+- Ricardo Vigliano (21070017)
 - Wagner Filho (21070013)
 
 ## Objetivo
