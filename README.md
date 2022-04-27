@@ -1,6 +1,12 @@
 # AMPará
 
+## Integrantes
 
+- Fabrício Silva (21070035)
+- Jairo Silva (21070006)
+- João Fonseca ()
+- Ricardo Vigliano ()
+- Wagner Filho (21070013)
 
 ## Objetivo
 
@@ -18,10 +24,9 @@ A piscicultura é um mercado que vem crescendo ao longo dos anos no Brasil. Perc
 
 - Medir totais de sólidos dissolvidos em água
 
-## Integrantes
-
-- Fabrício Silva (21070035)
-- Jairo Silva (21070006)
-- João Fonseca ()
-- Ricardo Vigliano ()
-- Wagner Filho (21070013)
+## Tecnologias Utilizadas
+- Arduino UNO
+- Sensor de Temperatura DS18B20
+- Módulo de Sensor de PH PH4502C
+- Display de 16x2
+- Módulo Sensor de TDS
