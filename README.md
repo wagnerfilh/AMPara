@@ -3,5 +3,5 @@
 ## OBJETIVOS
 ## Contexto do problema <br>
 
-##Funcionalidades <br>
-##Integrantes
+## Funcionalidades <br>
+## Integrantes
