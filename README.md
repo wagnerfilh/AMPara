@@ -1,6 +1,6 @@
 # AMPará
 
-## Integrantes
+## Integrantes 🤵
 
 - Fabrício Silva (21070035)
 - Jairo Silva (21070006)
