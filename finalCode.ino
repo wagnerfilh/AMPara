@@ -6,7 +6,7 @@
 //Define os pinos que serão utilizados para ligação ao display
 LiquidCrystal lcd(12, 11, 5, 4, 3, 2);
  
-#define ONE_WIRE_BUS 3
+#define ONE_WIRE_BUS 13
 DeviceAddress sensor1;
 // Setup a oneWire
 OneWire oneWire(ONE_WIRE_BUS);
@@ -15,12 +15,13 @@ DallasTemperature sensors(&oneWire);
 
 //https://wiki.keyestudio.com/KS0429_keyestudio_TDS_Meter_V1.0
 #define TdsSensorPin A1
-#define VREF 5.0 // voltagem de referência
+#define VREF 5.0 // analog reference voltage(Volt) of the ADC
 #define SCOUNT 30 // sum of sample point
-int analogBuffer[SCOUNT]; // armazena o valor analogico num vetor
+int analogBuffer[SCOUNT]; // store the analog value in the array, read from ADC
 int analogBufferTemp[SCOUNT];
 int analogBufferIndex = 0, copyIndex = 0;
-float averageVoltage = 0, tdsValue = 0, temperature = 25;
+float mediaVoltagem = 0, valorTds = 0;
+
 //SENSOR DE PH https://www.electroniclinic.com/arduino-libraries-download-and-projects-they-are-used-in-project-codes/
 float calibration_value = 23.34; //valor para calibrar os valores do pH
 int phval = 0;
@@ -38,7 +39,7 @@ void setup()
   sensors.begin();
   if (!sensors.getAddress(sensor1, 0))
     Serial.println("Sensores nao encontrados !");
-  printarTelaBoasVindas();
+  
 }
 void loop()
 {
@@ -49,33 +50,9 @@ void loop()
   //Printa no terminal a temperatura
   Serial.print(sensors.getTempCByIndex(0));
   Serial.println(sensors.getTempFByIndex(0));
-  delay(1000);
-  
-
   // CÓDIGO DA DOCUMENTAÇÃO DO SENSOR DE TDS
-  static unsigned long analogSampleTimepoint = millis();
-  if (millis() - analogSampleTimepoint > 40U) //a cada 40 milissegundos, leia o valor analógico do ADC
-  {
-    analogSampleTimepoint = millis();
-    analogBuffer[analogBufferIndex] = analogRead(TdsSensorPin); //leia o valor analógico e armazene no buffer
-    analogBufferIndex++;
-    if (analogBufferIndex == SCOUNT)
-      analogBufferIndex = 0;
-  }
-  static unsigned long printTimepoint = millis();
-  if (millis() - printTimepoint > 800U)
-  {
-    printTimepoint = millis();
-    for (copyIndex = 0; copyIndex < SCOUNT; copyIndex++)
-      analogBufferTemp[copyIndex] = analogBuffer[copyIndex];
-    averageVoltage = getMedianNum(analogBufferTemp, SCOUNT) * (float)VREF / 1024.0;
-    float compensationCoefficient = 1.0 + 0.02 * (temperature - 25.0);
-    float compensationVolatge = averageVoltage / compensationCoefficient;
-    tdsValue = (133.42 * compensationVolatge * compensationVolatge * compensationVolatge - 255.86 * compensationVolatge * compensationVolatge + 857.39 * compensationVolatge) * 0.5; //COMPENSAÇÃO ATRIBUIDA NO VALOR DE TDS
-    Serial.print("Valor de TDS:");
-    Serial.print(tdsValue, 0);
-    Serial.println("ppm");
-  }
+  TDS();
+  
   //SENSOR DE PH
   for (int i = 0; i < 10; i++)
   {
@@ -104,11 +81,41 @@ void loop()
   Serial.print("pH Val: ");
   Serial.println(ph_act);
   delay(1000);
-  printarTela();
+  //printarTela();
+}
+
+
+void TDS()
+{
+  static unsigned long analogSampleTimepoint = millis();
+  if (millis() - analogSampleTimepoint > 40U) //every 40 milliseconds,read the analog value from the ADC
+  {
+    analogSampleTimepoint = millis();
+    analogBuffer[analogBufferIndex] = analogRead(TdsSensorPin); //read the analog value and store into the buffer
+    analogBufferIndex++;
+    if (analogBufferIndex == SCOUNT)
+      analogBufferIndex = 0;
+  }
+  static unsigned long printTimepoint = millis();
+  if (millis() - printTimepoint > 800U)
+  {
+    printTimepoint = millis();
+    for (copyIndex = 0; copyIndex < SCOUNT; copyIndex++)
+      analogBufferTemp[copyIndex] = analogBuffer[copyIndex];
+    mediaVoltagem = getMedianNum(analogBufferTemp, SCOUNT) * (float)VREF / 1024.0; // read the analog value more stable by the median filtering algorithm, and convert to voltage value
+    float compensationCoefficient = 1.0 + 0.02 * (temperatura - 25.0); //temperatura compensation formula: fFinalResult(25^C) = fFinalResult(current)/(1.0+0.02*(fTP-25.0));
+    float compensationVolatge = mediaVoltagem / compensationCoefficient; //temperatura compensation
+    valorTds = (133.42 * compensationVolatge * compensationVolatge * compensationVolatge - 255.86 * compensationVolatge * compensationVolatge + 857.39 * compensationVolatge) * 0.5; //convert voltage value to tds value
+    //Serial.print("voltage:");
+    //Serial.print(mediaVoltagem,2);
+    //Serial.print("V ");
+    Serial.print("TDS Value:");
+    Serial.print(valorTds);
+    Serial.println("ppm");
+  }
 }
 int getMedianNum(int bArray[], int iFilterLen)
 {
-  //TDS MÉDIO
   int bTab[iFilterLen];
   for (byte i = 0; i < iFilterLen; i++)
     bTab[i] = bArray[i];
@@ -131,12 +138,11 @@ int getMedianNum(int bArray[], int iFilterLen)
     bTemp = (bTab[iFilterLen / 2] + bTab[iFilterLen / 2 - 1]) / 2;
   return bTemp;
 }
-
 void printarTelaBoasVindas()
 {
   lcd.setCursor(0,0);
   lcd.print("Bem vindo a");
-  lcd.setCursor(1,0);
+  lcd.setCursor(0,1);
   lcd.print("AMPara");
   delay(5000);
 }
@@ -174,7 +180,7 @@ void printarTela()
   lcd.setCursor(0,0);
   lcd.print("Valor atual");
   lcd.setCursor(0,1);
-  lcd.print(tdsValue);
+  lcd.print(valorTds);
   lcd.print(" ppm");
   delay(3000);
   lcd.clear();
