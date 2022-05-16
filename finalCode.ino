@@ -5,7 +5,7 @@
  
 //Define os pinos que serão utilizados para ligação ao display
 LiquidCrystal lcd(12, 11, 5, 4, 3, 2);
- 
+//Temperatura 
 #define ONE_WIRE_BUS 13
 DeviceAddress sensor1;
 // Setup a oneWire
@@ -38,7 +38,10 @@ void setup()
   pinMode(TdsSensorPin, INPUT);
   sensors.begin();
   if (!sensors.getAddress(sensor1, 0))
-    Serial.println("Sensores nao encontrados !");
+{
+  Serial.println("Sensores nao encontrados !");
+  }
+    
   
 }
 void loop()
@@ -77,11 +80,11 @@ void loop()
   float volt = (float)avgval * 5.0 / 1024 / 6; //CALIBRA VOLTAGEM DO SENSOR DE PH
   volt-=1.5;
   ph_act = -5.70 * volt + calibration_value;//PH ATUAL
-  ph_act/=2;
+  ph_act=ph_act/2;
   Serial.print("pH Val: ");
   Serial.println(ph_act);
   delay(1000);
-  //printarTela();
+  printarTela();
 }
 
 
@@ -106,9 +109,6 @@ void TDS()
     float compensationCoefficient = 1.0 + 0.02 * (temperatura - 25.0); //temperatura compensation formula: fFinalResult(25^C) = fFinalResult(current)/(1.0+0.02*(fTP-25.0));
     float compensationVolatge = mediaVoltagem / compensationCoefficient; //temperatura compensation
     valorTds = (133.42 * compensationVolatge * compensationVolatge * compensationVolatge - 255.86 * compensationVolatge * compensationVolatge + 857.39 * compensationVolatge) * 0.5; //convert voltage value to tds value
-    //Serial.print("voltage:");
-    //Serial.print(mediaVoltagem,2);
-    //Serial.print("V ");
     Serial.print("TDS Value:");
     Serial.print(valorTds);
     Serial.println("ppm");
