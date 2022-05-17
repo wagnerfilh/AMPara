@@ -31,7 +31,7 @@ A piscicultura é um mercado que vem crescendo ao longo dos anos no Brasil. Perc
 - Display de 16x2
 - Módulo Sensor de TDS
 ## Imagens do Projeto
-![IMG_8182](https://user-images.githubusercontent.com/92182806/168724637-027a637b-e9b3-4166-9ad1-c15e0fddc63c.jpg)
+![IMG_8182](https://user-images.githubusercontent.com/92182806/168724637-027a637b-e9b3-4166-9ad1-c15e0fddc63c.jpg =250x250)
 ![IMG_8184](https://user-images.githubusercontent.com/92182806/168724738-64effc6b-2e5f-4fbf-bf82-6c1daa4f2791.jpg)
 
 
